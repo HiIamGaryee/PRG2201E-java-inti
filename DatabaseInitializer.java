@@ -1,28 +1,43 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseInitializer {
     public static void main(String[] args) {
-        String url = "ppe_inventory.db"; // Path to your database file
-
-        try (Connection conn = DriverManager.getConnection(url)) {
-            if (conn != null) {
-                System.out.println("Database connected or created successfully!");
-                
-                // Optionally, create tables here
-                Statement stmt = conn.createStatement();
-                String createUsersTable = "CREATE TABLE IF NOT EXISTS users ("
-                        + "user_id TEXT PRIMARY KEY, "
-                        + "name TEXT NOT NULL, "
-                        + "password TEXT NOT NULL, "
-                        + "user_type TEXT NOT NULL);";
-                
-                stmt.execute(createUsersTable);
-                System.out.println("Users table created (or already exists).");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            
+            // Create PPE Items table
+            String createPPEItemsTable = "CREATE TABLE IF NOT EXISTS ppe_items (" +
+                    "item_code TEXT PRIMARY KEY," +
+                    "name TEXT NOT NULL," +
+                    "description TEXT," +
+                    "quantity INTEGER NOT NULL," +
+                    "min_stock_level INTEGER NOT NULL," +
+                    "unit TEXT NOT NULL," +
+                    "category TEXT NOT NULL" +
+                    ")";
+            
+            // Create PPE Transactions table
+            String createPPETransactionsTable = "CREATE TABLE IF NOT EXISTS ppe_transactions (" +
+                    "transaction_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "item_code TEXT NOT NULL," +
+                    "quantity INTEGER NOT NULL," +
+                    "transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    "transaction_type TEXT NOT NULL," +
+                    "source_destination TEXT NOT NULL," +
+                    "notes TEXT," +
+                    "FOREIGN KEY (item_code) REFERENCES ppe_items(item_code)" +
+                    ")";
+            
+            stmt.execute(createPPEItemsTable);
+            stmt.execute(createPPETransactionsTable);
+            
+            System.out.println("Database tables created successfully!");
+            
+        } catch (SQLException e) {
+            System.err.println("Error creating database tables: " + e.getMessage());
         }
     }
 }
