@@ -8,6 +8,7 @@ public class DashboardFrame extends JFrame {
     private PPEManagementPanel ppeManagementPanel;
     private StockTrackingPanel stockTrackingPanel;
     private SearchPanel searchPanel;
+    private TransactionHistoryPanel transactionHistoryPanel;
     private String userType;
 
     public DashboardFrame(String userType) {
@@ -24,11 +25,13 @@ public class DashboardFrame extends JFrame {
         ppeManagementPanel = new PPEManagementPanel();
         stockTrackingPanel = new StockTrackingPanel();
         searchPanel = new SearchPanel();
+        transactionHistoryPanel = new TransactionHistoryPanel();
 
         // Show all tabs to all users
         tabbedPane.addTab("PPE Management", ppeManagementPanel);
         tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
         tabbedPane.addTab("Search", searchPanel);
+        tabbedPane.addTab("Transaction History", transactionHistoryPanel);
 
         // Add tabbed pane to frame
         add(tabbedPane);
