@@ -1,7 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.sql.*;
 
 public class SupplierHospitalFrame extends JFrame {
@@ -10,9 +9,9 @@ public class SupplierHospitalFrame extends JFrame {
     private DefaultTableModel supplierModel, hospitalModel;
 
     // Supplier Fields
-    private JTextField supplierIDField, supplierNameField, supplierContactField, supplierAddressField;
+    private JTextField supplierNameField, supplierContactField, supplierAddressField;
     // Hospital Fields
-    private JTextField hospitalIDField, hospitalNameField, hospitalContactField, hospitalAddressField;
+    private JTextField hospitalNameField, hospitalContactField, hospitalAddressField;
 
     public SupplierHospitalFrame() {
         setTitle("Supplier & Hospital Management");
@@ -35,38 +34,74 @@ public class SupplierHospitalFrame extends JFrame {
     private JPanel createSupplierPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Input fields
-        JPanel inputPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        // Input panel with GridBagLayout for neat arrangement
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(BorderFactory.createTitledBorder("Supplier Details"));
+        
+        // Define GridBag constraints
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);  // Adding padding between components
+        gbc.anchor = GridBagConstraints.WEST;  // Align components to the left
+        gbc.fill = GridBagConstraints.HORIZONTAL;  // Fill available width
 
-        supplierIDField = new JTextField();
-        supplierNameField = new JTextField();
-        supplierContactField = new JTextField();
-        supplierAddressField = new JTextField();
+        // Row 1: Supplier Name
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        inputPanel.add(new JLabel("Name:"), gbc);
 
-        inputPanel.add(new JLabel("Supplier ID:"));
-        inputPanel.add(supplierIDField);
-        inputPanel.add(new JLabel("Name:"));
-        inputPanel.add(supplierNameField);
-        inputPanel.add(new JLabel("Contact:"));
-        inputPanel.add(supplierContactField);
-        inputPanel.add(new JLabel("Address:"));
-        inputPanel.add(supplierAddressField);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        supplierNameField = new JTextField(20);
+        inputPanel.add(supplierNameField, gbc);
 
+        // Row 2: Supplier Contact
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        inputPanel.add(new JLabel("Contact:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        supplierContactField = new JTextField(20);
+        inputPanel.add(supplierContactField, gbc);
+
+        // Row 3: Supplier Address
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        inputPanel.add(new JLabel("Address:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        supplierAddressField = new JTextField(20);
+        inputPanel.add(supplierAddressField, gbc);
+
+        // Row 4: Buttons (Add, Update, Delete)
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));  // Using FlowLayout for buttons
         JButton addBtn = new JButton("Add");
         JButton updateBtn = new JButton("Update");
         JButton deleteBtn = new JButton("Delete");
 
-        inputPanel.add(addBtn);
-        inputPanel.add(updateBtn);
-        inputPanel.add(deleteBtn);
+        // Set the same size for all buttons
+        addBtn.setPreferredSize(new Dimension(100, 40));
+        updateBtn.setPreferredSize(new Dimension(100, 40));
+        deleteBtn.setPreferredSize(new Dimension(100, 40));
 
+        buttonPanel.add(addBtn);
+        buttonPanel.add(updateBtn);
+        buttonPanel.add(deleteBtn);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        inputPanel.add(buttonPanel, gbc);  // Add button panel
+
+        // Add inputPanel to the North of the main panel
         panel.add(inputPanel, BorderLayout.NORTH);
 
-        // Table
+        // Table (with ScrollPane)
         supplierModel = new DefaultTableModel(new String[]{"ID", "Name", "Contact", "Address"}, 0);
         supplierTable = new JTable(supplierModel);
-        panel.add(new JScrollPane(supplierTable), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(supplierTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         // Button Actions
         addBtn.addActionListener(e -> addSupplier());
@@ -80,38 +115,74 @@ public class SupplierHospitalFrame extends JFrame {
     private JPanel createHospitalPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Input fields
-        JPanel inputPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        // Input panel with GridBagLayout for neat arrangement
+        JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(BorderFactory.createTitledBorder("Hospital Details"));
 
-        hospitalIDField = new JTextField();
-        hospitalNameField = new JTextField();
-        hospitalContactField = new JTextField();
-        hospitalAddressField = new JTextField();
+        // Define GridBag constraints
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);  // Adding padding between components
+        gbc.anchor = GridBagConstraints.WEST;  // Align components to the left
+        gbc.fill = GridBagConstraints.HORIZONTAL;  // Fill available width
 
-        inputPanel.add(new JLabel("Hospital ID:"));
-        inputPanel.add(hospitalIDField);
-        inputPanel.add(new JLabel("Name:"));
-        inputPanel.add(hospitalNameField);
-        inputPanel.add(new JLabel("Contact:"));
-        inputPanel.add(hospitalContactField);
-        inputPanel.add(new JLabel("Address:"));
-        inputPanel.add(hospitalAddressField);
+        // Row 1: Hospital Name
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        inputPanel.add(new JLabel("Name:"), gbc);
 
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        hospitalNameField = new JTextField(20);
+        inputPanel.add(hospitalNameField, gbc);
+
+        // Row 2: Hospital Contact
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        inputPanel.add(new JLabel("Contact:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        hospitalContactField = new JTextField(20);
+        inputPanel.add(hospitalContactField, gbc);
+
+        // Row 3: Hospital Address
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        inputPanel.add(new JLabel("Address:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        hospitalAddressField = new JTextField(20);
+        inputPanel.add(hospitalAddressField, gbc);
+
+        // Row 4: Buttons (Add, Update, Delete)
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));  // Using FlowLayout for buttons
         JButton addBtn = new JButton("Add");
         JButton updateBtn = new JButton("Update");
         JButton deleteBtn = new JButton("Delete");
 
-        inputPanel.add(addBtn);
-        inputPanel.add(updateBtn);
-        inputPanel.add(deleteBtn);
+        // Set the same size for all buttons
+        addBtn.setPreferredSize(new Dimension(100, 40));
+        updateBtn.setPreferredSize(new Dimension(100, 40));
+        deleteBtn.setPreferredSize(new Dimension(100, 40));
 
+        buttonPanel.add(addBtn);
+        buttonPanel.add(updateBtn);
+        buttonPanel.add(deleteBtn);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        inputPanel.add(buttonPanel, gbc);  // Add button panel
+
+        // Add inputPanel to the North of the main panel
         panel.add(inputPanel, BorderLayout.NORTH);
 
-        // Table
+        // Table (with ScrollPane)
         hospitalModel = new DefaultTableModel(new String[]{"ID", "Name", "Contact", "Address"}, 0);
         hospitalTable = new JTable(hospitalModel);
-        panel.add(new JScrollPane(hospitalTable), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(hospitalTable);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         // Button Actions
         addBtn.addActionListener(e -> addHospital());
@@ -125,13 +196,13 @@ public class SupplierHospitalFrame extends JFrame {
     // ===== SUPPLIER METHODS =====
     private void loadSuppliers() {
         supplierModel.setRowCount(0);
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM suppliers")) {
             while (rs.next()) {
                 supplierModel.addRow(new Object[]{
                         rs.getString("supplierID"),
-                        rs.getString("name"),
+                        rs.getString("supplierName"),
                         rs.getString("contact"),
                         rs.getString("address")
                 });
@@ -142,13 +213,21 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void addSupplier() {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db")) {
-            String sql = "INSERT INTO suppliers VALUES (?, ?, ?, ?)";
+        String supplierName = supplierNameField.getText().trim();
+        String supplierContact = supplierContactField.getText().trim();
+        String supplierAddress = supplierAddressField.getText().trim();
+
+        if (supplierName.isEmpty() || supplierContact.isEmpty() || supplierAddress.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields must be filled.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+            String sql = "INSERT INTO suppliers (supplierName, contact, address) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, supplierIDField.getText());
-            pstmt.setString(2, supplierNameField.getText());
-            pstmt.setString(3, supplierContactField.getText());
-            pstmt.setString(4, supplierAddressField.getText());
+            pstmt.setString(1, supplierName);
+            pstmt.setString(2, supplierContact);
+            pstmt.setString(3, supplierAddress);
             pstmt.executeUpdate();
             loadSuppliers();
             clearSupplierFields();
@@ -158,13 +237,29 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void updateSupplier() {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db")) {
-            String sql = "UPDATE suppliers SET name=?, contact=?, address=? WHERE supplierID=?";
+        int selectedRow = supplierTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "No supplier selected.");
+            return;
+        }
+
+        String supplierID = (String) supplierModel.getValueAt(selectedRow, 0);
+        String supplierName = supplierNameField.getText().trim();
+        String supplierContact = supplierContactField.getText().trim();
+        String supplierAddress = supplierAddressField.getText().trim();
+
+        if (supplierName.isEmpty() || supplierContact.isEmpty() || supplierAddress.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields must be filled.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+            String sql = "UPDATE suppliers SET supplierName=?, contact=?, address=? WHERE supplierID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, supplierNameField.getText());
-            pstmt.setString(2, supplierContactField.getText());
-            pstmt.setString(3, supplierAddressField.getText());
-            pstmt.setString(4, supplierIDField.getText());
+            pstmt.setString(1, supplierName);
+            pstmt.setString(2, supplierContact);
+            pstmt.setString(3, supplierAddress);
+            pstmt.setString(4, supplierID);
             pstmt.executeUpdate();
             loadSuppliers();
             clearSupplierFields();
@@ -174,10 +269,18 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void deleteSupplier() {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db")) {
+        int selectedRow = supplierTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "No supplier selected.");
+            return;
+        }
+
+        String supplierID = (String) supplierModel.getValueAt(selectedRow, 0);
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
             String sql = "DELETE FROM suppliers WHERE supplierID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, supplierIDField.getText());
+            pstmt.setString(1, supplierID);
             pstmt.executeUpdate();
             loadSuppliers();
             clearSupplierFields();
@@ -189,7 +292,6 @@ public class SupplierHospitalFrame extends JFrame {
     private void fillSupplierFields() {
         int row = supplierTable.getSelectedRow();
         if (row != -1) {
-            supplierIDField.setText((String) supplierModel.getValueAt(row, 0));
             supplierNameField.setText((String) supplierModel.getValueAt(row, 1));
             supplierContactField.setText((String) supplierModel.getValueAt(row, 2));
             supplierAddressField.setText((String) supplierModel.getValueAt(row, 3));
@@ -197,7 +299,6 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void clearSupplierFields() {
-        supplierIDField.setText("");
         supplierNameField.setText("");
         supplierContactField.setText("");
         supplierAddressField.setText("");
@@ -206,13 +307,13 @@ public class SupplierHospitalFrame extends JFrame {
     // ===== HOSPITAL METHODS =====
     private void loadHospitals() {
         hospitalModel.setRowCount(0);
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM hospitals")) {
             while (rs.next()) {
                 hospitalModel.addRow(new Object[]{
                         rs.getString("hospitalID"),
-                        rs.getString("name"),
+                        rs.getString("hospitalName"),
                         rs.getString("contact"),
                         rs.getString("address")
                 });
@@ -223,13 +324,21 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void addHospital() {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db")) {
-            String sql = "INSERT INTO hospitals VALUES (?, ?, ?, ?)";
+        String hospitalName = hospitalNameField.getText().trim();
+        String hospitalContact = hospitalContactField.getText().trim();
+        String hospitalAddress = hospitalAddressField.getText().trim();
+
+        if (hospitalName.isEmpty() || hospitalContact.isEmpty() || hospitalAddress.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields must be filled.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+            String sql = "INSERT INTO hospitals (hospitalName, contact, address) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, hospitalIDField.getText());
-            pstmt.setString(2, hospitalNameField.getText());
-            pstmt.setString(3, hospitalContactField.getText());
-            pstmt.setString(4, hospitalAddressField.getText());
+            pstmt.setString(1, hospitalName);
+            pstmt.setString(2, hospitalContact);
+            pstmt.setString(3, hospitalAddress);
             pstmt.executeUpdate();
             loadHospitals();
             clearHospitalFields();
@@ -239,13 +348,29 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void updateHospital() {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db")) {
-            String sql = "UPDATE hospitals SET name=?, contact=?, address=? WHERE hospitalID=?";
+        int selectedRow = hospitalTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "No hospital selected.");
+            return;
+        }
+
+        String hospitalID = (String) hospitalModel.getValueAt(selectedRow, 0);
+        String hospitalName = hospitalNameField.getText().trim();
+        String hospitalContact = hospitalContactField.getText().trim();
+        String hospitalAddress = hospitalAddressField.getText().trim();
+
+        if (hospitalName.isEmpty() || hospitalContact.isEmpty() || hospitalAddress.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields must be filled.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+            String sql = "UPDATE hospitals SET hospitalName=?, contact=?, address=? WHERE hospitalID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, hospitalNameField.getText());
-            pstmt.setString(2, hospitalContactField.getText());
-            pstmt.setString(3, hospitalAddressField.getText());
-            pstmt.setString(4, hospitalIDField.getText());
+            pstmt.setString(1, hospitalName);
+            pstmt.setString(2, hospitalContact);
+            pstmt.setString(3, hospitalAddress);
+            pstmt.setString(4, hospitalID);
             pstmt.executeUpdate();
             loadHospitals();
             clearHospitalFields();
@@ -255,10 +380,18 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void deleteHospital() {
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:inventory.db")) {
+        int selectedRow = hospitalTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "No hospital selected.");
+            return;
+        }
+
+        String hospitalID = (String) hospitalModel.getValueAt(selectedRow, 0);
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
             String sql = "DELETE FROM hospitals WHERE hospitalID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, hospitalIDField.getText());
+            pstmt.setString(1, hospitalID);
             pstmt.executeUpdate();
             loadHospitals();
             clearHospitalFields();
@@ -270,7 +403,6 @@ public class SupplierHospitalFrame extends JFrame {
     private void fillHospitalFields() {
         int row = hospitalTable.getSelectedRow();
         if (row != -1) {
-            hospitalIDField.setText((String) hospitalModel.getValueAt(row, 0));
             hospitalNameField.setText((String) hospitalModel.getValueAt(row, 1));
             hospitalContactField.setText((String) hospitalModel.getValueAt(row, 2));
             hospitalAddressField.setText((String) hospitalModel.getValueAt(row, 3));
@@ -278,7 +410,6 @@ public class SupplierHospitalFrame extends JFrame {
     }
 
     private void clearHospitalFields() {
-        hospitalIDField.setText("");
         hospitalNameField.setText("");
         hospitalContactField.setText("");
         hospitalAddressField.setText("");

@@ -1,6 +1,5 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class DBConnection {
     private static final String DB_URL = "jdbc:sqlite:ppe_inventory.db";
@@ -27,12 +26,11 @@ public class DBConnection {
     // Optional: close connection
     public static void closeConnection() {
         try {
-            if (conn != null && !conn.isClosed()) {
-                conn.close();
-                System.out.println("🔒 Connection closed.");
-            }
-        } catch (SQLException e) {
-            System.err.println("🚫 Error closing DB: " + e.getMessage());
+            Class.forName("org.sqlite.JDBC"); // Optional in modern Java, but fine to include
+            return DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
+        } catch (Exception e) {
+            System.out.println("DB Connection Error: " + e.getMessage());
+            return null;
         }
     }
 }

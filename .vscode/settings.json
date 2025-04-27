@@ -1,4 +1,7 @@
-// .vscode/settings.json
 {
-  "java.enabled": true
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "sqlite-jdbc-3.49.1.0.jar"
+  ],
+  "java.project.sourcePaths": [""]
 }
