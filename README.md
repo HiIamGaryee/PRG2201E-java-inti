@@ -90,3 +90,9 @@ For any issues or questions, please contact the project maintainers.
 ## License
 
 [Specify your license here]
+
+## Accounts
+
+1|admin|admin123
+2|user1|pass123
+3|test|test123
