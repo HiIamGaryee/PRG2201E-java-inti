@@ -4,7 +4,7 @@ import java.sql.Statement;
 
 public class DatabaseInitializer {
     public static void main(String[] args) {
-        String url = "ppe_inventory.db"; // Path to your database file
+        String url = "jdbc:sqlite:ppe_inventory.db"; // Path to your database file
 
         try (Connection conn = DriverManager.getConnection(url)) {
             if (conn != null) {
