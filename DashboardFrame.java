@@ -8,36 +8,40 @@ public class DashboardFrame extends JFrame {
     private PPEManagementPanel ppeManagementPanel;
     private StockTrackingPanel stockTrackingPanel;
     private SearchPanel searchPanel;
+    private String userType;
 
-    public DashboardFrame() {
-        setTitle("PPE Inventory Management System");
+    public DashboardFrame(String userType) {
+        this.userType = userType;
+        setTitle("PPE Inventory Management System - " + userType);
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // Create tabbed pane
         tabbedPane = new JTabbedPane();
-        
+
         // Create panels
-        ppeManagementPanel = new PPEManagementPanel();
-        stockTrackingPanel = new StockTrackingPanel();
         searchPanel = new SearchPanel();
-        
-        // Add panels to tabbed pane
-        tabbedPane.addTab("PPE Management", ppeManagementPanel);
-        tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
+
+        // Add panels to tabbed pane based on user type
+        if (userType.equals("ADMIN")) {
+            ppeManagementPanel = new PPEManagementPanel();
+            stockTrackingPanel = new StockTrackingPanel();
+            tabbedPane.addTab("PPE Management", ppeManagementPanel);
+            tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
+        }
         tabbedPane.addTab("Search", searchPanel);
-        
+
         // Add tabbed pane to frame
         add(tabbedPane);
-        
+
         // Add logout button
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
             dispose();
             new LoginFrame().setVisible(true);
         });
-        
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(logoutButton);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -45,7 +49,7 @@ public class DashboardFrame extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new DashboardFrame().setVisible(true);
+            new DashboardFrame("ADMIN").setVisible(true); // Default to ADMIN for testing
         });
     }
 }

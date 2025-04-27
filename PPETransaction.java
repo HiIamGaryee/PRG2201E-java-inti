@@ -1,45 +1,94 @@
-import java.util.Date;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class PPETransaction {
-    private int transactionId;
     private String itemCode;
     private int quantity;
-    private Date transactionDate;
-    private String transactionType; // "RECEIVE" or "DISTRIBUTE"
+    private String transactionType;
     private String sourceDestination;
-    private String notes;
+    private String dateTime;
 
-    public PPETransaction(int transactionId, String itemCode, int quantity, 
-                         Date transactionDate, String transactionType, 
-                         String sourceDestination, String notes) {
-        this.transactionId = transactionId;
+    public PPETransaction(String itemCode, int quantity, String transactionType, String sourceDestination) {
         this.itemCode = itemCode;
         this.quantity = quantity;
-        this.transactionDate = transactionDate;
         this.transactionType = transactionType;
         this.sourceDestination = sourceDestination;
-        this.notes = notes;
+        this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
-    // Getters and Setters
-    public int getTransactionId() { return transactionId; }
-    public void setTransactionId(int transactionId) { this.transactionId = transactionId; }
+    public boolean processTransaction() {
+        try (Connection conn = DBConnection.getConnection()) {
+            // Start transaction
+            conn.setAutoCommit(false);
 
-    public String getItemCode() { return itemCode; }
-    public void setItemCode(String itemCode) { this.itemCode = itemCode; }
+            try {
+                // Check current stock
+                String checkSql = "SELECT quantity FROM ppe_items WHERE item_code = ?";
+                PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+                checkStmt.setString(1, itemCode);
+                ResultSet rs = checkStmt.executeQuery();
 
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+                if (!rs.next()) {
+                    throw new SQLException("Item not found");
+                }
 
-    public Date getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(Date transactionDate) { this.transactionDate = transactionDate; }
+                int currentQuantity = rs.getInt("quantity");
 
-    public String getTransactionType() { return transactionType; }
-    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
+                // Check stock level for distribution
+                if (transactionType.equals("DISTRIBUTE") && currentQuantity < quantity) {
+                    throw new SQLException("Insufficient stock");
+                }
 
-    public String getSourceDestination() { return sourceDestination; }
-    public void setSourceDestination(String sourceDestination) { this.sourceDestination = sourceDestination; }
+                // Calculate new quantity
+                int newQuantity = transactionType.equals("RECEIVE") ? currentQuantity + quantity
+                        : currentQuantity - quantity;
 
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
-} 
+                // Update stock
+                String updateSql = "UPDATE ppe_items SET quantity = ? WHERE item_code = ?";
+                PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                updateStmt.setInt(1, newQuantity);
+                updateStmt.setString(2, itemCode);
+                updateStmt.executeUpdate();
+
+                // Record transaction
+                String transSql = "INSERT INTO ppe_transactions (item_code, quantity, transaction_type, " +
+                        "source_destination, transaction_date) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement transStmt = conn.prepareStatement(transSql);
+                transStmt.setString(1, itemCode);
+                transStmt.setInt(2, quantity);
+                transStmt.setString(3, transactionType);
+                transStmt.setString(4, sourceDestination);
+                transStmt.setString(5, dateTime);
+                transStmt.executeUpdate();
+
+                // Check for low stock alert
+                if (newQuantity <= 25) {
+                    // You should implement a notification system here
+                    System.out.println("Low stock alert for item: " + itemCode);
+                }
+
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static ResultSet getTransactionHistory(String itemCode) throws SQLException {
+        Connection conn = DBConnection.getConnection();
+        String sql = "SELECT * FROM ppe_transactions WHERE item_code = ? ORDER BY transaction_date DESC";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, itemCode);
+        return pstmt.executeQuery();
+    }
+}
