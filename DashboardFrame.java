@@ -21,15 +21,13 @@ public class DashboardFrame extends JFrame {
         tabbedPane = new JTabbedPane();
 
         // Create panels
+        ppeManagementPanel = new PPEManagementPanel();
+        stockTrackingPanel = new StockTrackingPanel();
         searchPanel = new SearchPanel();
 
-        // Add panels to tabbed pane based on user type
-        if (userType.equals("ADMIN")) {
-            ppeManagementPanel = new PPEManagementPanel();
-            stockTrackingPanel = new StockTrackingPanel();
-            tabbedPane.addTab("PPE Management", ppeManagementPanel);
-            tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
-        }
+        // Show all tabs to all users
+        tabbedPane.addTab("PPE Management", ppeManagementPanel);
+        tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
         tabbedPane.addTab("Search", searchPanel);
 
         // Add tabbed pane to frame
