@@ -62,10 +62,13 @@ public class PPETransaction {
                 transStmt.setString(5, dateTime);
                 transStmt.executeUpdate();
 
-                // Check for low stock alert
-                if (newQuantity <= 25) {
-                    // You should implement a notification system here
-                    System.out.println("Low stock alert for item: " + itemCode);
+                // Check for low stock alert (less than 5)
+                if (transactionType.equals("DISTRIBUTE") && newQuantity < 5) {
+                    javax.swing.SwingUtilities.invokeLater(() -> {
+                        javax.swing.JOptionPane.showMessageDialog(null,
+                                "Warning: Stock for item '" + itemCode + "' is critically low (" + newQuantity + ")!",
+                                "Low Stock Alert", javax.swing.JOptionPane.WARNING_MESSAGE);
+                    });
                 }
 
                 conn.commit();

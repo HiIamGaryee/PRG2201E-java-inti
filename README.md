@@ -46,7 +46,7 @@ A Java-based inventory management system for Personal Protective Equipment (PPE)
 1. **Compile the Java Files**
 
    ```bash
-   javac *.java
+   javac -cp ".:sqlite-jdbc-3.49.1.0.jar" *.java
    ```
 
 2. **Run the Application**
