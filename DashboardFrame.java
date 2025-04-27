@@ -1,35 +1,55 @@
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class DashboardFrame extends JFrame {
+    private JTabbedPane tabbedPane;
+    private PPEManagementPanel ppeManagementPanel;
+    private StockTrackingPanel stockTrackingPanel;
+    private SearchPanel searchPanel;
+    private String userType;
 
-    public DashboardFrame() {
-        setTitle("PPE Inventory Management Dashboard");
+    public DashboardFrame(String userType) {
+        this.userType = userType;
+        setTitle("PPE Inventory Management System - " + userType);
+        setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
-        setLocationRelativeTo(null); // center on screen
+        setLocationRelativeTo(null);
 
-        // Create the tabbed pane
-        JTabbedPane tabs = new JTabbedPane();
+        // Create tabbed pane
+        tabbedPane = new JTabbedPane();
 
-        // Add Member 1 and 2 placeholders (to integrate later)
-        tabs.addTab("User Management", new JPanel()); // Member 1
-        tabs.addTab("Inventory Updates", new JPanel()); // Member 2
+        // Create panels
+        searchPanel = new SearchPanel();
 
-        // Add your components
-        tabs.addTab("Stock Tracker", new StockTrackingPanel());  // ✅ your completed part
-        tabs.addTab("Search", new SearchPanel());                // ✅ your next part
+        // Add panels to tabbed pane based on user type
+        if (userType.equals("ADMIN")) {
+            ppeManagementPanel = new PPEManagementPanel();
+            stockTrackingPanel = new StockTrackingPanel();
+            tabbedPane.addTab("PPE Management", ppeManagementPanel);
+            tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
+        }
+        tabbedPane.addTab("Search", searchPanel);
 
-        // Optional: Add logout or welcome panel
-        tabs.addTab("Welcome", new JLabel("Welcome to the PPE Inventory Dashboard!", SwingConstants.CENTER));
+        // Add tabbed pane to frame
+        add(tabbedPane);
 
-        // Add tabs to the main frame
-        add(tabs);
+        // Add logout button
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(e -> {
+            dispose();
+            new LoginFrame().setVisible(true);
+        });
 
-        setVisible(true);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(logoutButton);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public static void main(String[] args) {
-        // Launch GUI
-        SwingUtilities.invokeLater(() -> new DashboardFrame());
+        SwingUtilities.invokeLater(() -> {
+            new DashboardFrame("ADMIN").setVisible(true); // Default to ADMIN for testing
+        });
     }
 }

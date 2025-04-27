@@ -9,40 +9,40 @@ public class LoginFrame extends JFrame {
 
     public LoginFrame() {
         setTitle("Login System");
-        setSize(400, 250); // Adjusted size for better appearance
+        setSize(400, 250);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center window
-        setLayout(new GridBagLayout()); // Use GridBagLayout for better control
+        setLocationRelativeTo(null);
+        setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Add padding around components
+        gbc.insets = new Insets(10, 10, 10, 10);
 
         // User ID Label
         JLabel userIDLabel = new JLabel("User ID:");
-        userIDLabel.setFont(new Font("Arial", Font.PLAIN, 14)); // Set font for label
+        userIDLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(userIDLabel, gbc);
 
         // User ID Text Field
         userIDField = new JTextField(20);
-        userIDField.setFont(new Font("Arial", Font.PLAIN, 14)); // Set font
-        userIDField.setPreferredSize(new Dimension(200, 30)); // Adjust size
+        userIDField.setFont(new Font("Arial", Font.PLAIN, 14));
+        userIDField.setPreferredSize(new Dimension(200, 30));
         gbc.gridx = 1;
         gbc.gridy = 0;
         add(userIDField, gbc);
 
         // Password Label
         JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14)); // Set font
+        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 1;
         add(passwordLabel, gbc);
 
         // Password Field
         passwordField = new JPasswordField(20);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 14)); // Set font
-        passwordField.setPreferredSize(new Dimension(200, 30)); // Adjust size
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
+        passwordField.setPreferredSize(new Dimension(200, 30));
         gbc.gridx = 1;
         gbc.gridy = 1;
         add(passwordField, gbc);
@@ -55,11 +55,11 @@ public class LoginFrame extends JFrame {
 
         // Login Button
         loginButton = new JButton("Login");
-        loginButton.setFont(new Font("Arial", Font.BOLD, 14)); // Set font
-        loginButton.setBackground(new Color(34, 167, 240)); // Set background color
-        loginButton.setForeground(Color.WHITE); // Set text color
-        loginButton.setPreferredSize(new Dimension(100, 40)); // Button size
-        loginButton.setBorder(BorderFactory.createLineBorder(new Color(34, 167, 240), 2)); // Add border
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loginButton.setBackground(new Color(34, 167, 240));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setPreferredSize(new Dimension(100, 40));
+        loginButton.setBorder(BorderFactory.createLineBorder(new Color(34, 167, 240), 2));
         loginButton.addActionListener(e -> authenticateUser());
         gbc.gridx = 1;
         gbc.gridy = 3;
@@ -78,8 +78,7 @@ public class LoginFrame extends JFrame {
         }
 
         try {
-            // Connect to SQLite (or your DB)
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
+            Connection conn = DBConnection.getConnection();
             String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userID);
@@ -88,11 +87,13 @@ public class LoginFrame extends JFrame {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 String userType = rs.getString("userType");
-                JOptionPane.showMessageDialog(this, "Login successful! User Type: " + userType);
+                JOptionPane.showMessageDialog(this, "Login successful! Welcome " + userID);
 
-                // Open dashboard or menu based on userType
-                // new AdminDashboard(userID); // for admin
-                // new StaffDashboard(userID); // for staff
+                // Open the appropriate dashboard based on user type
+                SwingUtilities.invokeLater(() -> {
+                    DashboardFrame dashboard = new DashboardFrame(userType);
+                    dashboard.setVisible(true);
+                });
 
                 dispose(); // Close login frame
             } else {
