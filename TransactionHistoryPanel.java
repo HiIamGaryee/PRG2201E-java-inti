@@ -9,7 +9,7 @@ public class TransactionHistoryPanel extends JPanel {
 
     public TransactionHistoryPanel() {
         setLayout(new BorderLayout());
-        String[] columnNames = { "Transaction ID", "Item Code", "Quantity", "Type", "Source/Destination", "Date" };
+        String[] columnNames = { "Transaction ID", "Item Code", "Quantity (Boxes)", "Type", "Source/Destination", "Date" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
