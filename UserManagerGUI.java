@@ -3,7 +3,7 @@ import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class UserManagerGUI extends JFrame {
+public class UserManagerGUI extends JPanel {
     private ArrayList<User> users = new ArrayList<>();
     private JTextField txtUsername = new JTextField(15);
     private JPasswordField txtPassword = new JPasswordField(15); // Use JPasswordField for password input
@@ -12,11 +12,7 @@ public class UserManagerGUI extends JFrame {
     private JList<User> userList = new JList<>(listModel);
 
     public UserManagerGUI() {
-        setTitle("User Manager");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(500, 500); // Adjusted size to fit all components properly
-        setLocationRelativeTo(null); // Center the window
-
+        
         // Use GridBagLayout for better control over layout
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -87,8 +83,7 @@ public class UserManagerGUI extends JFrame {
 
         // Load users from the database on initialization
         loadUsersFromDatabase();
-
-        setVisible(true);
+        
     }
 
     private void addUser() {
@@ -185,7 +180,5 @@ public class UserManagerGUI extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        new UserManagerGUI();
-    }
+    
 }
