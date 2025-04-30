@@ -79,7 +79,7 @@ public class SearchPanel extends JPanel {
             ORDER BY transaction_type, source_destination;
         """;
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db");
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, itemCode);
