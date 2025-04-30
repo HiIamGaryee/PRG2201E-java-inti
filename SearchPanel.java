@@ -1,15 +1,17 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 
 public class SearchPanel extends JPanel {
-
     private JTextField itemCodeField;
-    private JTextArea resultArea;
+    private DefaultTableModel tableModel;
 
     public SearchPanel() {
         setLayout(new BorderLayout());
 
+        // Input panel at top
         JPanel inputPanel = new JPanel();
         inputPanel.add(new JLabel("Enter Item Code:"));
         itemCodeField = new JTextField(10);
@@ -19,58 +21,88 @@ public class SearchPanel extends JPanel {
         inputPanel.add(searchBtn);
         add(inputPanel, BorderLayout.NORTH);
 
-        resultArea = new JTextArea(10, 40);
-        resultArea.setEditable(false);
-        add(new JScrollPane(resultArea), BorderLayout.CENTER);
+        // Result table setup
+        String[] columns = { "Item Code", "Type", "Source/Destination", "Total Quantity", "Date" };
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Prevent editing
+            }
+        };
 
-        // Search button action
+        JTable resultTable = new JTable(tableModel);
+        resultTable.setRowHeight(30);
+        resultTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
+        resultTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        // Custom renderer to highlight low distributed stock
+        resultTable.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                String type = (String) table.getValueAt(row, 1);
+                int quantity = Integer.parseInt(value.toString());
+
+                if (type.equalsIgnoreCase("DISTRIBUTE") && quantity < 10) {
+                    c.setBackground(Color.PINK);
+                } else {
+                    c.setBackground(Color.WHITE);
+                }
+
+                return c;
+            }
+        });
+
+        add(new JScrollPane(resultTable), BorderLayout.CENTER);
+
         searchBtn.addActionListener(e -> searchItem());
     }
 
     private void searchItem() {
         String itemCode = itemCodeField.getText().trim().toUpperCase();
-
         if (itemCode.isEmpty()) {
-            resultArea.setText("Please enter an item code.");
+            JOptionPane.showMessageDialog(this, "Please enter an item code.");
             return;
         }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        tableModel.setRowCount(0); // Clear previous results
 
-            // Get total in stock
-            String stockQuery = "SELECT quantity FROM ppe_items WHERE item_code = ?";
-            PreparedStatement ps1 = conn.prepareStatement(stockQuery);
-            ps1.setString(1, itemCode);
-            ResultSet rs1 = ps1.executeQuery();
+        String query = """
+            SELECT item_code, transaction_type, source_destination, 
+                   SUM(quantity) as total_quantity, 
+                   MAX(transaction_date) as latest_date
+            FROM ppe_transactions
+            WHERE item_code = ?
+            GROUP BY item_code, transaction_type, source_destination
+            ORDER BY transaction_type, source_destination;
+        """;
 
-            int currentStock = rs1.next() ? rs1.getInt("quantity") : -1;
-            if (currentStock == -1) {
-                resultArea.setText("Item not found.");
-                return;
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, itemCode);
+            ResultSet rs = stmt.executeQuery();
+
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                String code = rs.getString("item_code");
+                String type = rs.getString("transaction_type");
+                String sourceDest = rs.getString("source_destination");
+                int quantity = rs.getInt("total_quantity");
+                String date = rs.getString("latest_date");
+
+                tableModel.addRow(new Object[]{code, type, sourceDest, quantity, date});
             }
 
-            // Get total received
-            String receivedQuery = "SELECT SUM(quantity) AS total_received FROM transactions WHERE item_code = ? AND type = 'received'";
-            PreparedStatement ps2 = conn.prepareStatement(receivedQuery);
-            ps2.setString(1, itemCode);
-            ResultSet rs2 = ps2.executeQuery();
-            int received = rs2.next() ? rs2.getInt("total_received") : 0;
-
-            // Get total distributed
-            String distQuery = "SELECT SUM(quantity) AS total_distributed FROM transactions WHERE item_code = ? AND type = 'distributed'";
-            PreparedStatement ps3 = conn.prepareStatement(distQuery);
-            ps3.setString(1, itemCode);
-            ResultSet rs3 = ps3.executeQuery();
-            int distributed = rs3.next() ? rs3.getInt("total_distributed") : 0;
-
-            // Display results
-            resultArea.setText("Item Code: " + itemCode + "\n");
-            resultArea.append("Current Stock: " + currentStock + " boxes\n");
-            resultArea.append("Total Received: " + received + " boxes\n");
-            resultArea.append("Total Distributed: " + distributed + " boxes\n");
+            if (!found) {
+                JOptionPane.showMessageDialog(this, "No transactions found for this item.");
+            }
 
         } catch (SQLException e) {
-            resultArea.setText("Database error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
         }
     }
 }
