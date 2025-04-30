@@ -14,6 +14,8 @@ public class PPEManagementPanel extends JPanel {
     private JTextField itemCodeField, itemNameField, supplierCodeField, quantityField;
     private JComboBox<String> transactionTypeCombo;
     private JTextField sourceDestField, transactionQuantityField;
+    private JComboBox<String> supplierCombo;
+    private JComboBox<String> hospitalCombo;
 
     public PPEManagementPanel() {
         setLayout(new BorderLayout());
@@ -66,6 +68,19 @@ public class PPEManagementPanel extends JPanel {
         transactionTypeCombo = new JComboBox<>(new String[] { "RECEIVE", "DISTRIBUTE" });
         sourceDestField = new JTextField();
         transactionQuantityField = new JTextField();
+        supplierCombo = new JComboBox<>();
+        hospitalCombo = new JComboBox<>();
+
+        transactionTypeCombo.addActionListener(e -> {
+            String selectedType = (String) transactionTypeCombo.getSelectedItem();
+            if ("RECEIVE".equals(selectedType)) {
+                supplierCombo.setVisible(true);
+                hospitalCombo.setVisible(false);
+            } else {
+                supplierCombo.setVisible(false);
+                hospitalCombo.setVisible(true);
+            }
+        });
 
         transactionPanel.add(new JLabel("Transaction Type:"));
         transactionPanel.add(transactionTypeCombo);
@@ -73,6 +88,14 @@ public class PPEManagementPanel extends JPanel {
         transactionPanel.add(sourceDestField);
         transactionPanel.add(new JLabel("Quantity:"));
         transactionPanel.add(transactionQuantityField);
+        transactionPanel.add(new JLabel("Supplier:"));
+        transactionPanel.add(supplierCombo);
+        transactionPanel.add(new JLabel("Hospital:"));
+        transactionPanel.add(hospitalCombo);
+
+        hospitalCombo.setVisible(false);
+
+        loadSuppliersAndHospitals();
 
         // Create button panel
         JPanel buttonPanel = new JPanel();
@@ -124,6 +147,29 @@ public class PPEManagementPanel extends JPanel {
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error loading PPE items: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadSuppliersAndHospitals() {
+        try (Connection conn = DBConnection.getConnection()) {
+            String supplierSql = "SELECT id, username FROM users WHERE user_type = 'Supplier'";
+            PreparedStatement supplierStmt = conn.prepareStatement(supplierSql);
+            ResultSet supplierRs = supplierStmt.executeQuery();
+            supplierCombo.removeAllItems();
+            while (supplierRs.next()) {
+                supplierCombo.addItem(supplierRs.getString("username") + " (ID: " + supplierRs.getInt("id") + ")");
+            }
+
+            String hospitalSql = "SELECT id, username FROM users WHERE user_type = 'Hospital'";
+            PreparedStatement hospitalStmt = conn.prepareStatement(hospitalSql);
+            ResultSet hospitalRs = hospitalStmt.executeQuery();
+            hospitalCombo.removeAllItems();
+            while (hospitalRs.next()) {
+                hospitalCombo.addItem(hospitalRs.getString("username") + " (ID: " + hospitalRs.getInt("id") + ")");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading suppliers and hospitals: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -225,7 +271,25 @@ public class PPEManagementPanel extends JPanel {
             String sourceDest = sourceDestField.getText();
             int quantity = Integer.parseInt(transactionQuantityField.getText());
 
-            PPETransaction transaction = new PPETransaction(itemCode, quantity, transactionType, sourceDest);
+            Integer supplierId = null;
+            Integer hospitalId = null;
+
+            if ("RECEIVE".equals(transactionType)) {
+                String supplierSelection = (String) supplierCombo.getSelectedItem();
+                if (supplierSelection != null) {
+                    supplierId = Integer.parseInt(supplierSelection.substring(supplierSelection.indexOf("ID: ") + 4,
+                            supplierSelection.indexOf(")")));
+                }
+            } else {
+                String hospitalSelection = (String) hospitalCombo.getSelectedItem();
+                if (hospitalSelection != null) {
+                    hospitalId = Integer.parseInt(hospitalSelection.substring(hospitalSelection.indexOf("ID: ") + 4,
+                            hospitalSelection.indexOf(")")));
+                }
+            }
+
+            PPETransaction transaction = new PPETransaction(itemCode, quantity, transactionType, sourceDest,
+                    supplierId, hospitalId);
             if (transaction.processTransaction()) {
                 loadPPEItems();
                 clearFields();
@@ -247,5 +311,7 @@ public class PPEManagementPanel extends JPanel {
         quantityField.setText("");
         sourceDestField.setText("");
         transactionQuantityField.setText("");
+        supplierCombo.setSelectedIndex(0);
+        hospitalCombo.setSelectedIndex(0);
     }
 }

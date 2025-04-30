@@ -8,12 +8,17 @@ public class PPETransaction {
     private String transactionType;
     private String sourceDestination;
     private String dateTime;
+    private Integer supplierId; // ID of the supplier for RECEIVE transactions
+    private Integer hospitalId; // ID of the hospital for DISTRIBUTE transactions
 
-    public PPETransaction(String itemCode, int quantity, String transactionType, String sourceDestination) {
+    public PPETransaction(String itemCode, int quantity, String transactionType, String sourceDestination,
+            Integer supplierId, Integer hospitalId) {
         this.itemCode = itemCode;
         this.quantity = quantity;
         this.transactionType = transactionType;
         this.sourceDestination = sourceDestination;
+        this.supplierId = supplierId;
+        this.hospitalId = hospitalId;
         this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
@@ -52,15 +57,17 @@ public class PPETransaction {
                 updateStmt.setString(2, itemCode);
                 updateStmt.executeUpdate();
 
-                // Record transaction
+                // Record transaction with supplier/hospital IDs
                 String transSql = "INSERT INTO ppe_transactions (item_code, quantity_in_boxes, transaction_type, " +
-                        "source_destination, transaction_date) VALUES (?, ?, ?, ?, ?)";
+                        "source_destination, transaction_date, supplier_id, hospital_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement transStmt = conn.prepareStatement(transSql);
                 transStmt.setString(1, itemCode);
                 transStmt.setInt(2, quantity);
                 transStmt.setString(3, transactionType);
                 transStmt.setString(4, sourceDestination);
                 transStmt.setString(5, dateTime);
+                transStmt.setObject(6, supplierId);
+                transStmt.setObject(7, hospitalId);
                 transStmt.executeUpdate();
 
                 // Check for low stock alert (less than 5)
