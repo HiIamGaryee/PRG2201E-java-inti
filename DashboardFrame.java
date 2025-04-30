@@ -10,6 +10,7 @@ public class DashboardFrame extends JFrame {
     private SearchPanel searchPanel;
     private TransactionHistoryPanel transactionHistoryPanel;
     private UserManagerGUI userManagerPanel;
+    private SupplierHospitalPanel supplierHospitalPanel;
     private String userType;
     
     public DashboardFrame(String userType) {
@@ -27,7 +28,8 @@ public class DashboardFrame extends JFrame {
         stockTrackingPanel = new StockTrackingPanel();
         searchPanel = new SearchPanel();
         transactionHistoryPanel = new TransactionHistoryPanel();
-
+        supplierHospitalPanel = new SupplierHospitalPanel();
+        
         //Create UserManagerGUI panel
         if (userType.equalsIgnoreCase("Admin")) {
             userManagerPanel = new UserManagerGUI();
@@ -36,6 +38,7 @@ public class DashboardFrame extends JFrame {
 
         // Show all tabs to all users
         tabbedPane.addTab("PPE Management", ppeManagementPanel);
+        tabbedPane.addTab("Supplier & Hospital", supplierHospitalPanel);
         tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
         tabbedPane.addTab("Search", searchPanel);
         tabbedPane.addTab("Transaction History", transactionHistoryPanel);
