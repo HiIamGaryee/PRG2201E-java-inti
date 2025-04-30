@@ -7,7 +7,7 @@ public class DashboardFrame extends JFrame {
     private JTabbedPane tabbedPane;
     private PPEManagementPanel ppeManagementPanel;
     private StockTrackingPanel stockTrackingPanel;
-    private SearchPanel searchPanel;
+    private SearchFilterPanel searchPanel;
     private TransactionHistoryPanel transactionHistoryPanel;
     private UserManagerGUI userManagerPanel;
     private SupplierHospitalPanel supplierHospitalPanel;
@@ -26,7 +26,7 @@ public class DashboardFrame extends JFrame {
         // Create panels
         ppeManagementPanel = new PPEManagementPanel();
         stockTrackingPanel = new StockTrackingPanel();
-        searchPanel = new SearchPanel();
+        searchPanel = new SearchFilterPanel();
         transactionHistoryPanel = new TransactionHistoryPanel();
         supplierHospitalPanel = new SupplierHospitalPanel();
         
@@ -40,6 +40,7 @@ public class DashboardFrame extends JFrame {
         tabbedPane.addTab("Stock Management", ppeManagementPanel);
         tabbedPane.addTab("Supplier & Hospital", supplierHospitalPanel);
         tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
+        tabbedPane.addTab("Search", searchPanel);
 
         // Add tabbed pane to frame
         add(tabbedPane);

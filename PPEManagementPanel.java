@@ -5,6 +5,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
 
 public class PPEManagementPanel extends JPanel {
     private JTable ppeTable;
@@ -12,7 +14,8 @@ public class PPEManagementPanel extends JPanel {
     private JButton addButton, updateButton, deleteButton, transactionButton;
     private JTextField itemCodeField, itemNameField, quantityField, transactionQuantityField;
     private JComboBox<String> sourceComboBox, transactionTypeCombo;
-    private JTextField supplierField; 
+    private JTextField supplierField;
+    private JSpinner transactionDateSpinner;  
 
 
     public PPEManagementPanel() {
@@ -77,6 +80,12 @@ public class PPEManagementPanel extends JPanel {
         transactionPanel.add(sourceComboBox);
         transactionPanel.add(new JLabel("Quantity:"));
         transactionPanel.add(transactionQuantityField);
+        transactionPanel.add(new JLabel("Date: "));
+
+        transactionDateSpinner = new JSpinner(new SpinnerDateModel());
+        transactionDateSpinner.setEditor(new JSpinner.DateEditor(transactionDateSpinner, "yyyy-MM-dd"));
+        transactionDateSpinner.setValue(new java.util.Date());
+        transactionPanel.add(transactionDateSpinner);
 
         // Buttons
         JPanel buttonPanel = new JPanel();
@@ -217,6 +226,9 @@ public class PPEManagementPanel extends JPanel {
             String transactionType = (String) transactionTypeCombo.getSelectedItem();
             String sourceDest= (String) sourceComboBox.getSelectedItem();
             int quantity = Integer.parseInt(transactionQuantityField.getText());
+            java.util.Date date = (java.util.Date) transactionDateSpinner.getValue();
+            String formattedDate = new java.text.SimpleDateFormat("yyyy-MM-dd").format(date);
+
 
             //Check current stock for distribution
             if ("DISTRIBUTE".equals(transactionType)) {
@@ -229,7 +241,7 @@ public class PPEManagementPanel extends JPanel {
             }
 
             //Proceed with transaction
-            PPETransaction transaction = new PPETransaction(itemCode, quantity, transactionType, sourceDest);
+            PPETransaction transaction = new PPETransaction(itemCode, quantity, transactionType, sourceDest, formattedDate);
             if (transaction.processTransaction()) {
                 loadPPEItems();
                 clearFields();
@@ -251,6 +263,7 @@ public class PPEManagementPanel extends JPanel {
         transactionQuantityField.setText("");
         supplierField.setText("");
         sourceComboBox.setSelectedIndex(0);
+        transactionDateSpinner.setValue(new java.util.Date());
     }
 
     private int getCurrentStock(String itemCode) {

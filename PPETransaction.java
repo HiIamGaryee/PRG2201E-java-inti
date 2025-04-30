@@ -9,12 +9,12 @@ public class PPETransaction {
     private String sourceDestination;
     private String dateTime;
 
-    public PPETransaction(String itemCode, int quantity, String transactionType, String sourceDestination) {
+    public PPETransaction(String itemCode, int quantity, String transactionType, String sourceDestination, String dateTime) {
         this.itemCode = itemCode;
         this.quantity = quantity;
         this.transactionType = transactionType;
         this.sourceDestination = sourceDestination;
-        this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.dateTime = dateTime;
     }
 
     public boolean processTransaction() {
@@ -52,8 +52,7 @@ public class PPETransaction {
                 updateStmt.executeUpdate();
 
                 // Record transaction
-                String transSql = "INSERT INTO ppe_transactions (item_code, quantity_in_boxes, transaction_type, " +
-                        "source_destination, transaction_date) VALUES (?, ?, ?, ?, ?)";
+                String transSql = "INSERT INTO ppe_transactions (item_code, quantity, transaction_type, source_destination, transaction_date) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement transStmt = conn.prepareStatement(transSql);
                 transStmt.setString(1, itemCode);
                 transStmt.setInt(2, quantity);
