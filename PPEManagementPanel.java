@@ -56,7 +56,7 @@ public class PPEManagementPanel extends JPanel {
         inputPanel.add(itemNameField);
         inputPanel.add(new JLabel("Supplier Code:"));
         inputPanel.add(supplierCodeField);
-        inputPanel.add(new JLabel("Quantity:"));
+        inputPanel.add(new JLabel("Quantity (Boxes):"));
         inputPanel.add(quantityField);
 
         // Create transaction panel

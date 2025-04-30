@@ -14,7 +14,7 @@ public class StockTrackingPanel extends JPanel {
         table.setRowHeight(30);
 
         // Connect to DB and load data
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String query = "SELECT item_code, item_name, quantity_in_boxes FROM ppe_items ORDER BY item_code ASC";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
