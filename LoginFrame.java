@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 
 public class LoginFrame extends JFrame {
@@ -64,6 +65,25 @@ public class LoginFrame extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 3;
         add(loginButton, gbc);
+
+        // Add KeyListener for the Enter key press on both fields
+        userIDField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    authenticateUser();
+                }
+            }
+        });
+
+        passwordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    authenticateUser();
+                }
+            }
+        });
 
         setVisible(true);
     }
