@@ -24,7 +24,7 @@ public class PPETransaction {
 
             try {
                 // Check current stock
-                String checkSql = "SELECT quantity FROM ppe_items WHERE item_code = ?";
+                String checkSql = "SELECT quantity_in_boxes FROM ppe_items WHERE item_code = ?";
                 PreparedStatement checkStmt = conn.prepareStatement(checkSql);
                 checkStmt.setString(1, itemCode);
                 ResultSet rs = checkStmt.executeQuery();
@@ -33,7 +33,7 @@ public class PPETransaction {
                     throw new SQLException("Item not found");
                 }
 
-                int currentQuantity = rs.getInt("quantity");
+                int currentQuantity = rs.getInt("quantity_in_boxes");
 
                 // Check stock level for distribution
                 if (transactionType.equals("DISTRIBUTE") && currentQuantity < quantity) {
@@ -45,14 +45,14 @@ public class PPETransaction {
                         : currentQuantity - quantity;
 
                 // Update stock
-                String updateSql = "UPDATE ppe_items SET quantity = ? WHERE item_code = ?";
+                String updateSql = "UPDATE ppe_items SET quantity_in_boxes = ? WHERE item_code = ?";
                 PreparedStatement updateStmt = conn.prepareStatement(updateSql);
                 updateStmt.setInt(1, newQuantity);
                 updateStmt.setString(2, itemCode);
                 updateStmt.executeUpdate();
 
                 // Record transaction
-                String transSql = "INSERT INTO ppe_transactions (item_code, quantity, transaction_type, " +
+                String transSql = "INSERT INTO ppe_transactions (item_code, quantity_in_boxes, transaction_type, " +
                         "source_destination, transaction_date) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement transStmt = conn.prepareStatement(transSql);
                 transStmt.setString(1, itemCode);

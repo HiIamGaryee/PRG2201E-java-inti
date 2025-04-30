@@ -8,21 +8,21 @@ public class StockTrackingPanel extends JPanel {
     public StockTrackingPanel() {
         setLayout(new BorderLayout());
 
-        String[] columns = {"Item Code", "Item Name", "Quantity"};
+        String[] columns = {"Item Code", "Item Name", "Quantity (Boxes)"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         JTable table = new JTable(model);
         table.setRowHeight(30);
 
         // Connect to DB and load data
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
-            String query = "SELECT item_code, item_name, quantity FROM ppe_items ORDER BY item_code ASC";
+            String query = "SELECT item_code, item_name, quantity_in_boxes FROM ppe_items ORDER BY item_code ASC";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
                 String code = rs.getString("item_code");
                 String name = rs.getString("item_name");
-                int quantity = rs.getInt("quantity");
+                int quantity = rs.getInt("quantity_in_boxes");
                 model.addRow(new Object[]{code, name, quantity});
             }
 

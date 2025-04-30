@@ -79,6 +79,7 @@ public class LoginFrame extends JFrame {
 
         try {
             Connection conn = DBConnection.getConnection();
+            // ✅ REMARK: Correct table name assumed to be 'users' and checking userID+password
             String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userID);
@@ -86,18 +87,19 @@ public class LoginFrame extends JFrame {
 
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
+                // ✅ REMARK: Fetch the userType from DB
                 String userType = rs.getString("userType");
+
                 JOptionPane.showMessageDialog(this, "Login successful! Welcome " + userID);
 
-                // Open the appropriate dashboard based on user type
+                // ✅ REMARK: Redirect to DashboardFrame with correct userType
                 SwingUtilities.invokeLater(() -> {
-                    DashboardFrame dashboard = new DashboardFrame(userType);
-                    dashboard.setVisible(true);
+                    new DashboardFrame(userType).setVisible(true);
                 });
 
-                dispose(); // Close login frame
+                dispose(); // ✅ REMARK: Close LoginFrame after successful login
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid credentials.");
+                JOptionPane.showMessageDialog(this, "Invalid Username or Password.");
             }
 
             rs.close();

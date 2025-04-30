@@ -19,7 +19,7 @@ public class PPEManagementPanel extends JPanel {
         setLayout(new BorderLayout());
 
         // Create table model
-        String[] columnNames = { "Item Code", "Item Name", "Supplier Code", "Quantity" };
+        String[] columnNames = { "Item Code", "Item Name", "Supplier Code", "Quantity (Boxes)" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -118,7 +118,7 @@ public class PPEManagementPanel extends JPanel {
                         rs.getString("item_code"),
                         rs.getString("item_name"),
                         rs.getString("supplier_code"),
-                        rs.getInt("quantity")
+                        rs.getInt("quantity_in_boxes")
                 };
                 tableModel.addRow(row);
             }
@@ -135,7 +135,7 @@ public class PPEManagementPanel extends JPanel {
             String supplierCode = supplierCodeField.getText();
             int quantity = Integer.parseInt(quantityField.getText());
 
-            String sql = "INSERT INTO ppe_items (item_code, item_name, supplier_code, quantity) " +
+            String sql = "INSERT INTO ppe_items (item_code, item_name, supplier_code, quantity_in_boxes) " +
                     "VALUES (?, ?, ?, ?)";
 
             try (Connection conn = DBConnection.getConnection();
@@ -166,7 +166,7 @@ public class PPEManagementPanel extends JPanel {
             String supplierCode = supplierCodeField.getText();
             int quantity = Integer.parseInt(quantityField.getText());
 
-            String sql = "UPDATE ppe_items SET item_name = ?, supplier_code = ?, quantity = ? " +
+            String sql = "UPDATE ppe_items SET item_name = ?, supplier_code = ?, quantity_in_boxes = ? " +
                     "WHERE item_code = ?";
 
             try (Connection conn = DBConnection.getConnection();
