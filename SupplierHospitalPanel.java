@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class SupplierHospitalPanel extends JPanel {
 
@@ -10,6 +11,7 @@ public class SupplierHospitalPanel extends JPanel {
 
     // Supplier Fields
     private JTextField supplierCodeField, supplierNameField, supplierContactField, supplierAddressField;
+    private JComboBox<String> suppliedItemComboBox;
     // Hospital Fields
     private JTextField hospitalCodeField, hospitalNameField, hospitalContactField, hospitalAddressField;
 
@@ -30,86 +32,73 @@ public class SupplierHospitalPanel extends JPanel {
     private JPanel createSupplierPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // Input panel with GridBagLayout for neat arrangement
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(BorderFactory.createTitledBorder("Supplier Details"));
-        
-        // Define GridBag constraints
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);  // Adding padding between components
-        gbc.anchor = GridBagConstraints.WEST;  // Align components to the left
-        gbc.fill = GridBagConstraints.HORIZONTAL;  // Fill available width
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Row 1: Supplier Code
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        // Row 1: Code
+        gbc.gridx = 0; gbc.gridy = 0;
         inputPanel.add(new JLabel("Code:"), gbc);
-
         gbc.gridx = 1;
-        gbc.gridy = 0;
         supplierCodeField = new JTextField(20);
         inputPanel.add(supplierCodeField, gbc);
 
-        // Row 2: Supplier Name
-        gbc.gridx = 0;
-        gbc.gridy = 1;
+        // Row 2: Name
+        gbc.gridx = 0; gbc.gridy = 1;
         inputPanel.add(new JLabel("Name:"), gbc);
-
         gbc.gridx = 1;
-        gbc.gridy = 1;
         supplierNameField = new JTextField(20);
         inputPanel.add(supplierNameField, gbc);
 
-        // Row 3: Supplier Contact
-        gbc.gridx = 0;
-        gbc.gridy = 2;
+        // Row 3: Contact
+        gbc.gridx = 0; gbc.gridy = 2;
         inputPanel.add(new JLabel("Contact:"), gbc);
-
         gbc.gridx = 1;
-        gbc.gridy = 2;
         supplierContactField = new JTextField(20);
         inputPanel.add(supplierContactField, gbc);
 
-        // Row 4: Supplier Address
-        gbc.gridx = 0;
-        gbc.gridy = 3;
+        // Row 4: Address
+        gbc.gridx = 0; gbc.gridy = 3;
         inputPanel.add(new JLabel("Address:"), gbc);
-
         gbc.gridx = 1;
-        gbc.gridy = 3;
         supplierAddressField = new JTextField(20);
         inputPanel.add(supplierAddressField, gbc);
 
-        // Row 5: Buttons (Add, Update, Delete)
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));  // Using FlowLayout for buttons
+        // ✅ Row 5: Supplied Item Dropdown
+        gbc.gridx = 0; gbc.gridy = 4;
+        inputPanel.add(new JLabel("Supplied Item:"), gbc);
+        gbc.gridx = 1;
+        suppliedItemComboBox = new JComboBox<>(loadPPEItemNames());
+        inputPanel.add(suppliedItemComboBox, gbc);
+
+        // Row 6: Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton addBtn = new JButton("Add");
         JButton updateBtn = new JButton("Update");
         JButton deleteBtn = new JButton("Delete");
-
-        // Set the same size for all buttons
         addBtn.setPreferredSize(new Dimension(100, 40));
         updateBtn.setPreferredSize(new Dimension(100, 40));
         deleteBtn.setPreferredSize(new Dimension(100, 40));
-
         buttonPanel.add(addBtn);
         buttonPanel.add(updateBtn);
         buttonPanel.add(deleteBtn);
 
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        inputPanel.add(buttonPanel, gbc);  // Add button panel
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2;
+        inputPanel.add(buttonPanel, gbc);
 
-        // Add inputPanel to the North of the main panel
         panel.add(inputPanel, BorderLayout.NORTH);
 
-        // Table (with ScrollPane)
-        supplierModel = new DefaultTableModel(new String[]{"ID", "Code", "Name", "Contact", "Address"}, 0);
+        // ✅ Table with new column
+        supplierModel = new DefaultTableModel(new String[]{"ID", "Code", "Name", "Contact", "Address", "Supplied Item"}, 0);
         supplierTable = new JTable(supplierModel);
         JScrollPane scrollPane = new JScrollPane(supplierTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Button Actions
+        // Listeners
         addBtn.addActionListener(e -> addSupplier());
         updateBtn.addActionListener(e -> updateSupplier());
         deleteBtn.addActionListener(e -> deleteSupplier());
@@ -117,6 +106,7 @@ public class SupplierHospitalPanel extends JPanel {
 
         return panel;
     }
+
 
     private JPanel createHospitalPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -221,7 +211,8 @@ public class SupplierHospitalPanel extends JPanel {
                         rs.getString("supplierCode"),
                         rs.getString("supplierName"),
                         rs.getString("contact"),
-                        rs.getString("address")
+                        rs.getString("address"),
+                        rs.getString("supplied_item")
                 });
             }
         } catch (SQLException e) {
@@ -241,12 +232,13 @@ public class SupplierHospitalPanel extends JPanel {
         }
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
-            String sql = "INSERT INTO suppliers (supplierCode, supplierName, contact, address) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO suppliers (supplierCode, supplierName, contact, address, supplied_item) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, supplierCode);
             pstmt.setString(2, supplierName);
             pstmt.setString(3, supplierContact);
             pstmt.setString(4, supplierAddress);
+            pstmt.setString(5, suppliedItemComboBox.getSelectedItem().toString());
             pstmt.executeUpdate();
             loadSuppliers();
             clearSupplierFields();
@@ -274,13 +266,14 @@ public class SupplierHospitalPanel extends JPanel {
         }
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
-            String sql = "UPDATE suppliers SET supplierCode=?, supplierName=?, contact=?, address=? WHERE supplierID=?";
+            String sql = "UPDATE suppliers SET supplierCode=?, supplierName=?, contact=?, address=?, supplied_item=? WHERE supplierID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, supplierCode);
             pstmt.setString(2, supplierName);
             pstmt.setString(3, supplierContact);
             pstmt.setString(4, supplierAddress);
-            pstmt.setString(5, supplierID);
+            pstmt.setString(5, suppliedItemComboBox.getSelectedItem().toString());
+            pstmt.setString(6, supplierID);
             pstmt.executeUpdate();
             loadSuppliers();
             clearSupplierFields();
@@ -325,6 +318,7 @@ public class SupplierHospitalPanel extends JPanel {
         supplierNameField.setText("");
         supplierContactField.setText("");
         supplierAddressField.setText("");
+        suppliedItemComboBox.setSelectedIndex(0);
     }
 
     // ===== HOSPITAL METHODS =====
@@ -448,4 +442,19 @@ public class SupplierHospitalPanel extends JPanel {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(SupplierHospitalPanel::new);
     }
+
+    private String[] loadPPEItemNames() {
+        java.util.List<String> items = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db");
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT item_name FROM ppe_items")) {
+            while (rs.next()) {
+                items.add(rs.getString("item_name"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading item names: " + e.getMessage());
+        }
+        return items.toArray(new String[0]);
+    }
+
 }

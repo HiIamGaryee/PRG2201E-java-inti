@@ -37,11 +37,9 @@ public class DashboardFrame extends JFrame {
         }
 
         // Show all tabs to all users
-        tabbedPane.addTab("PPE Management", ppeManagementPanel);
+        tabbedPane.addTab("Stock Management", ppeManagementPanel);
         tabbedPane.addTab("Supplier & Hospital", supplierHospitalPanel);
         tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
-        tabbedPane.addTab("Search", searchPanel);
-        tabbedPane.addTab("Transaction History", transactionHistoryPanel);
 
         // Add tabbed pane to frame
         add(tabbedPane);

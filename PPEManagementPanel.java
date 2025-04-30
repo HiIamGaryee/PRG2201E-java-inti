@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,70 +10,75 @@ public class PPEManagementPanel extends JPanel {
     private JTable ppeTable;
     private DefaultTableModel tableModel;
     private JButton addButton, updateButton, deleteButton, transactionButton;
-    private JTextField itemCodeField, itemNameField, supplierCodeField, quantityField;
-    private JComboBox<String> transactionTypeCombo;
-    private JTextField sourceDestField, transactionQuantityField;
+    private JTextField itemCodeField, itemNameField, quantityField, transactionQuantityField;
+    private JComboBox<String> sourceComboBox, transactionTypeCombo;
+    private JTextField supplierField; 
+
 
     public PPEManagementPanel() {
         setLayout(new BorderLayout());
 
-        // Create table model
+        // Table
         String[] columnNames = { "Item Code", "Item Name", "Supplier Code", "Quantity (Boxes)" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Make table non-editable
+                return false;
             }
         };
         ppeTable = new JTable(tableModel);
 
-        // Add selection listener to populate fields
+        // Selection listener
         ppeTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = ppeTable.getSelectedRow();
                 if (selectedRow >= 0) {
                     itemCodeField.setText(tableModel.getValueAt(selectedRow, 0).toString());
                     itemNameField.setText(tableModel.getValueAt(selectedRow, 1).toString());
-                    supplierCodeField.setText(tableModel.getValueAt(selectedRow, 2).toString());
+                    supplierField.setText(tableModel.getValueAt(selectedRow, 2).toString());
                     quantityField.setText(tableModel.getValueAt(selectedRow, 3).toString());
                 }
             }
         });
 
-        // Create input panel
+        // Input Panel
         JPanel inputPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         inputPanel.setBorder(BorderFactory.createTitledBorder("PPE Item Details"));
 
         itemCodeField = new JTextField();
         itemNameField = new JTextField();
-        supplierCodeField = new JTextField();
+        // supplierComboBox = new JComboBox<>(loadAllSources());
+        supplierField = new JTextField();
+        supplierField.setEditable(false);
         quantityField = new JTextField();
 
         inputPanel.add(new JLabel("Item Code:"));
         inputPanel.add(itemCodeField);
         inputPanel.add(new JLabel("Item Name:"));
         inputPanel.add(itemNameField);
-        inputPanel.add(new JLabel("Supplier Code:"));
-        inputPanel.add(supplierCodeField);
+        // inputPanel.add(new JLabel("Supplier/Hospital:"));
+        // inputPanel.add(supplierComboBox);
+        inputPanel.add(new JLabel("Supplier Code: "));
+        inputPanel.add(supplierField);
         inputPanel.add(new JLabel("Quantity (Boxes):"));
         inputPanel.add(quantityField);
 
-        // Create transaction panel
+        // Transaction Panel
         JPanel transactionPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         transactionPanel.setBorder(BorderFactory.createTitledBorder("Transaction"));
 
         transactionTypeCombo = new JComboBox<>(new String[] { "RECEIVE", "DISTRIBUTE" });
-        sourceDestField = new JTextField();
+        sourceComboBox = new JComboBox<>(loadAllSources());
         transactionQuantityField = new JTextField();
 
         transactionPanel.add(new JLabel("Transaction Type:"));
         transactionPanel.add(transactionTypeCombo);
         transactionPanel.add(new JLabel("Source/Destination:"));
-        transactionPanel.add(sourceDestField);
+        transactionPanel.add(sourceComboBox);
         transactionPanel.add(new JLabel("Quantity:"));
         transactionPanel.add(transactionQuantityField);
 
-        // Create button panel
+        // Buttons
         JPanel buttonPanel = new JPanel();
         addButton = new JButton("Add Item");
         updateButton = new JButton("Update Item");
@@ -86,39 +90,35 @@ public class PPEManagementPanel extends JPanel {
         buttonPanel.add(deleteButton);
         buttonPanel.add(transactionButton);
 
-        // Add action listeners
+        // Listeners
         addButton.addActionListener(e -> addPPEItem());
         updateButton.addActionListener(e -> updatePPEItem());
         deleteButton.addActionListener(e -> deletePPEItem());
         transactionButton.addActionListener(e -> processTransaction());
 
-        // Add components to main panel
+        // Layout
         add(new JScrollPane(ppeTable), BorderLayout.CENTER);
-
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(inputPanel, BorderLayout.NORTH);
         southPanel.add(transactionPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
-
         add(southPanel, BorderLayout.SOUTH);
 
-        // Load initial data
         loadPPEItems();
     }
 
     private void loadPPEItems() {
         try (Connection conn = DBConnection.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM ppe_items")) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM ppe_items")) {
 
-            tableModel.setRowCount(0); // Clear existing data
-
+            tableModel.setRowCount(0);
             while (rs.next()) {
                 Object[] row = {
-                        rs.getString("item_code"),
-                        rs.getString("item_name"),
-                        rs.getString("supplier_code"),
-                        rs.getInt("quantity_in_boxes")
+                    rs.getString("item_code"),
+                    rs.getString("item_name"),
+                    rs.getString("supplier_code"),
+                    rs.getInt("quantity_in_boxes")
                 };
                 tableModel.addRow(row);
             }
@@ -132,19 +132,17 @@ public class PPEManagementPanel extends JPanel {
         try {
             String itemCode = itemCodeField.getText();
             String itemName = itemNameField.getText();
-            String supplierCode = supplierCodeField.getText();
+            String supplierCode = supplierField.getText();
             int quantity = Integer.parseInt(quantityField.getText());
 
-            String sql = "INSERT INTO ppe_items (item_code, item_name, supplier_code, quantity_in_boxes) " +
-                    "VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO ppe_items (item_code, item_name, supplier_code, quantity_in_boxes) VALUES (?, ?, ?, ?)";
 
             try (Connection conn = DBConnection.getConnection();
-                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, itemCode);
                 pstmt.setString(2, itemName);
                 pstmt.setString(3, supplierCode);
                 pstmt.setInt(4, quantity);
-
                 pstmt.executeUpdate();
                 loadPPEItems();
                 clearFields();
@@ -163,19 +161,17 @@ public class PPEManagementPanel extends JPanel {
         try {
             String itemCode = itemCodeField.getText();
             String itemName = itemNameField.getText();
-            String supplierCode = supplierCodeField.getText();
+            String supplierCode = supplierField.getText();
             int quantity = Integer.parseInt(quantityField.getText());
 
-            String sql = "UPDATE ppe_items SET item_name = ?, supplier_code = ?, quantity_in_boxes = ? " +
-                    "WHERE item_code = ?";
+            String sql = "UPDATE ppe_items SET item_name = ?, supplier_code = ?, quantity_in_boxes = ? WHERE item_code = ?";
 
             try (Connection conn = DBConnection.getConnection();
-                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, itemName);
                 pstmt.setString(2, supplierCode);
                 pstmt.setInt(3, quantity);
                 pstmt.setString(4, itemCode);
-
                 pstmt.executeUpdate();
                 loadPPEItems();
                 clearFields();
@@ -193,19 +189,16 @@ public class PPEManagementPanel extends JPanel {
     private void deletePPEItem() {
         String itemCode = itemCodeField.getText();
         if (itemCode.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please select an item to delete",
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select an item to delete", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete this item?",
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?",
                 "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
             try (Connection conn = DBConnection.getConnection();
-                    PreparedStatement pstmt = conn.prepareStatement(
-                            "DELETE FROM ppe_items WHERE item_code = ?")) {
+                 PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ppe_items WHERE item_code = ?")) {
                 pstmt.setString(1, itemCode);
                 pstmt.executeUpdate();
                 loadPPEItems();
@@ -222,9 +215,20 @@ public class PPEManagementPanel extends JPanel {
         try {
             String itemCode = itemCodeField.getText();
             String transactionType = (String) transactionTypeCombo.getSelectedItem();
-            String sourceDest = sourceDestField.getText();
+            String sourceDest= (String) sourceComboBox.getSelectedItem();
             int quantity = Integer.parseInt(transactionQuantityField.getText());
 
+            //Check current stock for distribution
+            if ("DISTRIBUTE".equals(transactionType)) {
+                int currentStock = getCurrentStock(itemCode);
+                if (currentStock < quantity ) {
+                    JOptionPane.showMessageDialog(this,
+                    "Insufficient stock! Current available: " + currentStock + "boxes.\n" + "Please enter a lower quantity to distribute.", "Stock Error", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+
+            //Proceed with transaction
             PPETransaction transaction = new PPETransaction(itemCode, quantity, transactionType, sourceDest);
             if (transaction.processTransaction()) {
                 loadPPEItems();
@@ -243,9 +247,43 @@ public class PPEManagementPanel extends JPanel {
     private void clearFields() {
         itemCodeField.setText("");
         itemNameField.setText("");
-        supplierCodeField.setText("");
         quantityField.setText("");
-        sourceDestField.setText("");
         transactionQuantityField.setText("");
+        supplierField.setText("");
+        sourceComboBox.setSelectedIndex(0);
+    }
+
+    private int getCurrentStock(String itemCode) {
+        int stock = 0;
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT quantity_in_boxes FROM ppe_items WHERE item_code = ?")) {
+            stmt.setString(1, itemCode);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                stock = rs.getInt("quantity_in_boxes");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error retrieving current stock: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return stock;
+    }
+
+    private String[] loadAllSources() {
+        List<String> sources = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            ResultSet rs1 = conn.createStatement().executeQuery("SELECT supplierCode FROM suppliers");
+            while (rs1.next()) {
+                sources.add("suppliers: " + rs1.getString("supplierCode"));
+            }
+            ResultSet rs2 = conn.createStatement().executeQuery("SELECT hospitalCode FROM hospitals");
+            while (rs2.next()) {
+                sources.add("hospitals: " + rs2.getString("hospitalCode"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading source list: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return sources.toArray(new String[0]);
     }
 }
