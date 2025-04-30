@@ -87,7 +87,7 @@ public class UserManagerGUI extends JPanel {
         String userType = (String) userTypeComboBox.getSelectedItem();
 
         if (!username.isEmpty() && !password.isEmpty()) {
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
                 String sql = "INSERT INTO users (username, password, userType) VALUES (?, ?, ?)";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, username);
@@ -112,7 +112,7 @@ public class UserManagerGUI extends JPanel {
             String newPassword = new String(txtPassword.getPassword()).trim();
             String newUserType = (String) userTypeComboBox.getSelectedItem();
 
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
                 boolean updated = false;
 
                 if (!newPassword.isEmpty() && !newPassword.equals(selected.getPassword())) {
@@ -149,7 +149,7 @@ public class UserManagerGUI extends JPanel {
     private void deleteUser() {
         User selected = userList.getSelectedValue();
         if (selected != null) {
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
                 String sql = "DELETE FROM users WHERE username = ?";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, selected.getUsername());
@@ -176,7 +176,7 @@ public class UserManagerGUI extends JPanel {
         users.clear();
         listModel.clear();
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String sql = "SELECT * FROM users";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();

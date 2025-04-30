@@ -192,7 +192,7 @@ public class SupplierHospitalPanel extends JPanel {
     // ===== SUPPLIER METHODS =====
     private void loadSuppliers() {
         supplierModel.setRowCount(0);
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db");
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM suppliers")) {
             while (rs.next()) {
@@ -218,7 +218,7 @@ public class SupplierHospitalPanel extends JPanel {
             return;
         }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String sql = "INSERT INTO suppliers (supplierName, contact, address) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, supplierName);
@@ -249,7 +249,7 @@ public class SupplierHospitalPanel extends JPanel {
             return;
         }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String sql = "UPDATE suppliers SET supplierName=?, contact=?, address=? WHERE supplierID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, supplierName);
@@ -273,7 +273,7 @@ public class SupplierHospitalPanel extends JPanel {
 
         String supplierID = (String) supplierModel.getValueAt(selectedRow, 0);
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String sql = "DELETE FROM suppliers WHERE supplierID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, supplierID);
@@ -303,7 +303,7 @@ public class SupplierHospitalPanel extends JPanel {
     // ===== HOSPITAL METHODS =====
     private void loadHospitals() {
         hospitalModel.setRowCount(0);
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db");
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM hospitals")) {
             while (rs.next()) {
@@ -329,7 +329,7 @@ public class SupplierHospitalPanel extends JPanel {
             return;
         }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String sql = "INSERT INTO hospitals (hospitalName, contact, address) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, hospitalName);
@@ -360,7 +360,7 @@ public class SupplierHospitalPanel extends JPanel {
             return;
         }
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String sql = "UPDATE hospitals SET hospitalName=?, contact=?, address=? WHERE hospitalID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, hospitalName);
@@ -384,7 +384,7 @@ public class SupplierHospitalPanel extends JPanel {
 
         String hospitalID = (String) hospitalModel.getValueAt(selectedRow, 0);
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:ppe_inventory.db")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db")) {
             String sql = "DELETE FROM hospitals WHERE hospitalID=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, hospitalID);
