@@ -99,7 +99,7 @@ public class LoginFrame extends JFrame {
 
                 dispose(); // ✅ REMARK: Close LoginFrame after successful login
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid credentials.");
+                JOptionPane.showMessageDialog(this, "Invalid Username or Password.");
             }
 
             rs.close();
