@@ -17,7 +17,7 @@ public class PPETransaction {
         this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
-    public boolean processTransaction() {
+    public boolean processTransaction() throws SQLException {
         try (Connection conn = DBConnection.getConnection()) {
             // Start transaction
             conn.setAutoCommit(false);
@@ -37,7 +37,8 @@ public class PPETransaction {
 
                 // Check stock level for distribution
                 if (transactionType.equals("DISTRIBUTE") && currentQuantity < quantity) {
-                    throw new SQLException("Insufficient stock");
+                    throw new SQLException("Item " + itemCode + " on stock was " + currentQuantity
+                            + ", maximum to distributed is " + currentQuantity);
                 }
 
                 // Calculate new quantity
@@ -80,10 +81,6 @@ public class PPETransaction {
             } finally {
                 conn.setAutoCommit(true);
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 

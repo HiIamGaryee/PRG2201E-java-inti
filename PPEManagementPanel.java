@@ -230,13 +230,13 @@ public class PPEManagementPanel extends JPanel {
                 loadPPEItems();
                 clearFields();
                 JOptionPane.showMessageDialog(this, "Transaction processed successfully!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Error processing transaction",
-                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter valid numbers for quantity",
                     "Input Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(),
+                    "Transaction Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
