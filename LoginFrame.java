@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 
 public class LoginFrame extends JFrame {
@@ -65,6 +66,25 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 3;
         add(loginButton, gbc);
 
+        // Add KeyListener for the Enter key press on both fields
+        userIDField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    authenticateUser();
+                }
+            }
+        });
+
+        passwordField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    authenticateUser();
+                }
+            }
+        });
+
         setVisible(true);
     }
 
@@ -99,7 +119,7 @@ public class LoginFrame extends JFrame {
 
                 dispose(); // ✅ REMARK: Close LoginFrame after successful login
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid credentials.");
+                JOptionPane.showMessageDialog(this, "Invalid Username or Password.");
             }
 
             rs.close();
