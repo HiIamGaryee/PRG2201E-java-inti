@@ -122,7 +122,7 @@ public class StockTrackingPanel extends JPanel {
         private void loadTransactions() {
             try (Connection conn = DriverManager.getConnection("jdbc:sqlite:new_ppe_inventory.db");
                  Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT * FROM ppe_transactions ORDER BY transaction_date DESC")) {
+                 ResultSet rs = stmt.executeQuery("SELECT * FROM ppe_transactions ORDER BY transaction_id ASC")) {
 
                 transModel.setRowCount(0);
                 while (rs.next()) {
