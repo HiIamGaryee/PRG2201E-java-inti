@@ -118,15 +118,30 @@ public class PPEManagementPanel extends JPanel {
 
     private void loadPPEItems() {
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM ppe_items")) {
+            Statement stmt = conn.createStatement()) {
 
-            tableModel.setRowCount(0);
+            String sql = """
+                SELECT 
+                    pi.item_code,
+                    pi.item_name,
+                    MAX(si.supplierCode) AS supplierCode,
+                    pi.quantity_in_boxes
+                FROM 
+                    ppe_items pi
+                LEFT JOIN 
+                    supplier_items si ON pi.item_name = si.item_name
+                GROUP BY 
+                    pi.item_code
+            """;
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            tableModel.setRowCount(0); // clear table first
             while (rs.next()) {
                 Object[] row = {
                     rs.getString("item_code"),
                     rs.getString("item_name"),
-                    rs.getString("supplier_code"),
+                    rs.getString("supplierCode"), // match alias exactly
                     rs.getInt("quantity_in_boxes")
                 };
                 tableModel.addRow(row);
@@ -264,6 +279,10 @@ public class PPEManagementPanel extends JPanel {
         supplierField.setText("");
         sourceComboBox.setSelectedIndex(0);
         transactionDateSpinner.setValue(new java.util.Date());
+    }
+
+    public void refresh() {
+        loadPPEItems();
     }
 
     private int getCurrentStock(String itemCode) {

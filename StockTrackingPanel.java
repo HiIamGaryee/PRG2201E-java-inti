@@ -65,6 +65,10 @@ public class StockTrackingPanel extends JPanel {
         add(tabbedPane, BorderLayout.CENTER);
     }
 
+    public void refresh() {
+        loadDataFromDatabase();
+    }
+
     private void loadDataFromDatabase() {
         model.setRowCount(0);
         String query = """

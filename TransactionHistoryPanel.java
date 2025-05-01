@@ -20,6 +20,10 @@ public class TransactionHistoryPanel extends JPanel {
         loadTransactions();
         add(new JScrollPane(transactionTable), BorderLayout.CENTER);
     }
+    
+    public void refresh() {
+        loadTransactions();
+    }
 
     private void loadTransactions() {
         try (Connection conn = DBConnection.getConnection();

@@ -45,6 +45,19 @@ public class DashboardFrame extends JFrame {
         // Add tabbed pane to frame
         add(tabbedPane);
 
+        //Listen for tab switches to trigger data reload
+        tabbedPane.addChangeListener(e -> {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            String selectedTitle = tabbedPane.getTitleAt(selectedIndex);
+
+            switch (selectedTitle) {
+            case "Stock Management" -> ppeManagementPanel.refresh();
+            case "Stock Tracking" -> stockTrackingPanel.refresh();
+            case "Supplier & Hospital" -> supplierHospitalPanel.refresh();
+            case "Transaction History" -> transactionHistoryPanel.refresh();
+        }
+        });
+
         // Add logout button
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
