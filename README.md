@@ -35,11 +35,11 @@ A Java-based inventory management system for Personal Protective Equipment (PPE)
 - `DatabaseInitializer.java` - Database initialization
 - `DashboardFrame.java` - Main dashboard after login
 - `UserManagerGUI.java` - User management interface
-- `SupplierHospitalFrame.java` - Supplier and hospital management
+- `SupplierHospitalPanel.java` - Supplier and hospital management
 - `StockTrackingPanel.java` - Stock tracking interface
-- `SearchPanel.java` - Search functionality
+- `SearchFilterPanel.java` - Search functionality
 - `sqlite-jdbc-3.49.1.0.jar` - SQLite JDBC driver
-- `ppe_inventory.db` - SQLite database file
+- `new_ppe_inventory.db` - SQLite database file
 
 ## Running the Application
 
@@ -76,7 +76,7 @@ A Java-based inventory management system for Personal Protective Equipment (PPE)
 
 2. **Database Connection Issues**
 
-   - Check if `ppe_inventory.db` exists in the project directory
+   - Check if `new_ppe_inventory.db` exists in the project directory
    - Verify database permissions
 
 3. **Compilation Errors**
@@ -93,6 +93,7 @@ For any issues or questions, please contact the project maintainers.
 
 ## Accounts
 
-1|admin|admin123
-2|user1|pass123
-3|test|test123
+1|garyee|123
+2|felix123|123
+3|grace|123
+4|staff|staff
