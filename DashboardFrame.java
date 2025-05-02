@@ -1,68 +1,68 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class DashboardFrame extends JFrame {
-    private JTabbedPane tabbedPane;
-    private PPEManagementPanel ppeManagementPanel;
-    private StockTrackingPanel stockTrackingPanel;
-    private SearchFilterPanel searchPanel;
-    private TransactionHistoryPanel transactionHistoryPanel;
+
+    private final JTabbedPane tabbedPane;
+    private final PPEManagementPanel ppeManagementPanel;
+    private final StockTrackingPanel stockTrackingPanel;
+    private final SearchFilterPanel searchPanel;
+    private final TransactionHistoryPanel transactionHistoryPanel;
+    private final SupplierHospitalPanel supplierHospitalPanel;
     private UserManagerGUI userManagerPanel;
-    private SupplierHospitalPanel supplierHospitalPanel;
-    private String userType;
-    
+    private final String userType;
+
     public DashboardFrame(String userType) {
         this.userType = userType;
+
         setTitle("PPE Inventory Management System - " + userType);
         setSize(1200, 800);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        // Create tabbed pane
+        // Initialize tabbed pane
         tabbedPane = new JTabbedPane();
 
-        // Create panels
+        // Initialize panels
         ppeManagementPanel = new PPEManagementPanel();
         stockTrackingPanel = new StockTrackingPanel();
         searchPanel = new SearchFilterPanel();
         transactionHistoryPanel = new TransactionHistoryPanel();
         supplierHospitalPanel = new SupplierHospitalPanel();
-        
-        //Create UserManagerGUI panel
+
+        // Add Admin-only tab
         if (userType.equalsIgnoreCase("Admin")) {
             userManagerPanel = new UserManagerGUI();
             tabbedPane.addTab("User Management", userManagerPanel);
         }
 
-        // Show all tabs to all users
+        // Add common tabs for all users
         tabbedPane.addTab("Stock Management", ppeManagementPanel);
         tabbedPane.addTab("Supplier & Hospital", supplierHospitalPanel);
         tabbedPane.addTab("Stock Tracking", stockTrackingPanel);
         tabbedPane.addTab("Search", searchPanel);
+        tabbedPane.addTab("Transaction History", transactionHistoryPanel);
 
-        // Add tabbed pane to frame
-        add(tabbedPane);
+        // Add tabbed pane to the frame
+        add(tabbedPane, BorderLayout.CENTER);
 
-        //Listen for tab switches to trigger data reload
+        // Tab change listener to refresh data when switching tabs
         tabbedPane.addChangeListener(e -> {
-            int selectedIndex = tabbedPane.getSelectedIndex();
-            String selectedTitle = tabbedPane.getTitleAt(selectedIndex);
-
-            switch (selectedTitle) {
-            case "Stock Management" -> ppeManagementPanel.refresh();
-            case "Stock Tracking" -> stockTrackingPanel.refresh();
-            case "Supplier & Hospital" -> supplierHospitalPanel.refresh();
-            case "Transaction History" -> transactionHistoryPanel.refresh();
-        }
+            String selectedTab = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
+            switch (selectedTab) {
+                case "Stock Management" -> ppeManagementPanel.refresh();
+                case "Stock Tracking" -> stockTrackingPanel.refresh();
+                case "Supplier & Hospital" -> supplierHospitalPanel.refresh();
+                case "Transaction History" -> transactionHistoryPanel.refresh();
+            }
         });
 
-        // Add logout button
+        // Create and add logout button
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(e -> {
-            dispose();
-            new LoginFrame().setVisible(true);
+            dispose(); // Close dashboard
+            new LoginFrame().setVisible(true); // Return to login screen
         });
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -71,8 +71,6 @@ public class DashboardFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new DashboardFrame("ADMIN").setVisible(true); // Default to ADMIN for testing
-        });
+        SwingUtilities.invokeLater(() -> new DashboardFrame("ADMIN").setVisible(true)); // For testing
     }
 }
